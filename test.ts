@@ -31,3 +31,10 @@ if(
   console.log('false')
 }
 
+const mapArr: any = null
+const mapArr2 = mapArr?.map((item: any) => {
+  return {
+    a:item.a
+  }
+})
+console.log(mapArr2)
