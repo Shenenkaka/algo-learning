@@ -136,14 +136,19 @@ console.log(
 );
 
 //记忆搜索
-function minPathDfsWithMemo(grid: number[][], i: number, j: number, memo: number[][]): number {
+function minPathDfsWithMemo(
+  grid: number[][],
+  i: number,
+  j: number,
+  memo: number[][]
+): number {
   if (i === 0 && j === 0) {
     return grid[i][j];
   }
   if (i < 0 || j < 0) {
     return Infinity;
   }
-  if(memo[i][j] !== -1) {
+  if (memo[i][j] !== -1) {
     return memo[i][j];
   }
   const up = minPathDfsWithMemo(grid, i - 1, j, memo);
@@ -160,7 +165,10 @@ console.log(
 );
 
 //动态规划
-function minPathDpWithCoords(grid: number[][]): {minCost: number, path: [number, number][]} {
+function minPathDpWithCoords(grid: number[][]): {
+  minCost: number;
+  path: [number, number][];
+} {
   const m = grid.length;
   const n = grid[0].length;
   const dp = new Array(m).fill(0).map(() => new Array(n).fill(0));
@@ -195,17 +203,17 @@ function minPathDpWithCoords(grid: number[][]): {minCost: number, path: [number,
     [i, j] = prev;
     resPath.push([i, j]);
   }
-  return {minCost: dp[m - 1][n - 1], path: resPath.reverse()};
+  return { minCost: dp[m - 1][n - 1], path: resPath.reverse() };
 }
 
 console.log("minPathDp => ", minPathDpWithCoords(testGrid));
 
 //空间优化最小路径和
 function minPathDpWithSpaceOptimization(grid: number[][]): number {
-  const m = grid.length;      // 行数
-  const n = grid[0].length;   // 列数
+  const m = grid.length; // 行数
+  const n = grid[0].length; // 列数
   const dp = new Array(n).fill(0); // 一维数组，长度为列数
-  dp[0] = grid[0][0];         // 起点初始化
+  dp[0] = grid[0][0]; // 起点初始化
   // 初始化第一行
   for (let j = 1; j < n; j++) {
     dp[j] = dp[j - 1] + grid[0][j];
@@ -229,3 +237,86 @@ console.log(
   minPathDpWithSpaceOptimization(testGrid)
 );
 
+/** 0-1背包问题 */
+// 给定n个物品，第i个物品的重量为wgt[i-1]、价值为val[i-1] ，和一个容量为cap 的背包。每个物品只能选择一次，问在限定背包容量下能放入物品的最大价值。
+// 状态定义：dp[i][j] 表示前i个物品在容量为j的背包中的最大价值
+// 状态转移：dp[i][j] = max(dp[i-1][j], dp[i-1][j-wgt[i-1]] + val[i-1])
+// 最大价值：dp[n][cap]等于不放回当前物品dp[n-1][cap]和放回当前物品dp[n-1][cap-wgt[n-1]] + val[n-1]的最大值
+// 初始化：dp[0][j] = 0 表示没有物品时，背包价值为0，dp[i][0] = 0 表示背包容量为0时，背包价值为0
+// 目标：dp[n][cap] 表示前n个物品在容量为cap的背包中的最大价值
+
+const wgt = [10, 20, 30, 40, 50];
+const val = [50, 120, 150, 210, 240];
+const cap = 50;
+// const knapsackMemo = new Array(wgt.length + 1).fill(0).map(() => new Array(cap + 1).fill(0));
+// console.log("knapsackMemo => ", knapsackMemo);
+
+// 暴力搜索
+function knapsack(
+  wgt: number[],
+  val: number[],
+  cap: number,
+  n: number
+): number {
+  if (n === 0 || cap === 0) {
+    return 0;
+  }
+  // 如果当前物品重量大于背包容量，则不选择该物品
+  if (wgt[n - 1] > cap) {
+    return knapsack(wgt, val, cap, n - 1);
+  }
+  // 选择当前物品或不选择当前物品
+  const notChoose = knapsack(wgt, val, cap, n - 1);
+  const choose = knapsack(wgt, val, cap - wgt[n - 1], n - 1) + val[n - 1];
+  console.log("notChoose => ", notChoose, "choose => ", choose);
+  return Math.max(notChoose, choose);
+}
+
+console.log("knapsack => ", knapsack(wgt, val, cap, wgt.length));
+
+// 记忆化搜索
+function knapsackMemo(
+  wgt: number[],
+  val: number[],
+  cap: number,
+  n: number,
+  memo: number[][]
+): number {
+  if (n === 0 || cap === 0) {
+    return 0;
+  }
+  if (memo[n][cap] !== 0) {
+    return memo[n][cap];
+  }
+  if (wgt[n - 1] > cap) {
+    return knapsackMemo(wgt, val, cap, n - 1, memo);
+  }
+  const notChoose = knapsackMemo(wgt, val, cap, n - 1, memo);
+  const choose =
+    knapsackMemo(wgt, val, cap - wgt[n - 1], n - 1, memo) + val[n - 1];
+  memo[n][cap] = Math.max(notChoose, choose);
+  return memo[n][cap];
+}
+
+// 动态规划
+function knapsackDp(wgt: number[], val: number[], cap: number): number {
+  const n = wgt.length;
+  const dp = new Array(n + 1).fill(0).map(() => new Array(cap + 1).fill(0));
+  for (let i = 1; i <= n; i++) {
+    for (let j = 1; j <= cap; j++) {
+      if (j - wgt[i - 1] < 0) {
+        console.log("wgt[i - 1] > j => ", wgt[i - 1], j);
+        dp[i][j] = dp[i - 1][j];
+      } else {
+        const choose = dp[i - 1][j - wgt[i - 1]] + val[i - 1];
+        const notChoose = dp[i - 1][j];
+        console.log("i,j => ", i, j, wgt[i - 1],"choose => ", choose, "notChoose => ", notChoose);
+        dp[i][j] = Math.max(choose, notChoose);
+      }
+    }
+    console.log("i => ", i, "dp[i][j] => ", dp);
+  }
+  return dp[n][cap];
+}
+
+console.log("knapsackDp => ", knapsackDp([1,2,3], [5,11,15], 4));
