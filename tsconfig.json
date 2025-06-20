@@ -2,12 +2,19 @@
   "compilerOptions": {
     "target": "ES6",
     "module": "CommonJS",
-    "lib": ["ES2016", "dom"],
+    "lib": ["ES2019", "dom"],
     "downlevelIteration": true,
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "dist"
   },
-  "include": ["*.ts"]
+  "include": ["*.ts"],
+  "watchOptions": {
+    "watchFile": "useFsEvents",
+    "watchDirectory": "useFsEvents",
+    "fallbackPolling": "dynamicPriority",
+  },
+  "exclude": ["node_modules", "dist"]
 } 

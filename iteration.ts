@@ -1,4 +1,4 @@
-function forLoop(n) {
+function forLoop(n: number) {
   let res = 0;
   for (let index = 0; index <= n; index++) {
     res += index;
@@ -7,7 +7,7 @@ function forLoop(n) {
 }
 console.log('forLoop => ', forLoop(100));
 
-function whileLoop(n) {
+function whileLoop(n: number) {
   let [i, res] = [0, 0];
   while (i <= n) {
     res += i;
